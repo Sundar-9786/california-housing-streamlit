@@ -1,10 +1,12 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import pickle
-
 # --------------------------------------------------
 # PAGE CONFIG
 # --------------------------------------------------
+
+
 st.set_page_config(
     page_title="California Housing Price Predictor",
     layout="centered"
@@ -17,8 +19,8 @@ st.title("California Housing Price Predictor")
 # --------------------------------------------------
 
 def column_ratio(X):
-    return X[:, 0] / X[:, 1]
-
+    
+    return X[:, [0]] / X[:, [1]]
 
 
 @st.cache_resource
