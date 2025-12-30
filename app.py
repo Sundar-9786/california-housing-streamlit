@@ -15,6 +15,12 @@ st.title("California Housing Price Predictor")
 # --------------------------------------------------
 # LOAD MODEL (ONCE PER SESSION)
 # --------------------------------------------------
+
+def column_ratio(X):
+    return X[:, 0] / X[:, 1]
+
+
+
 @st.cache_resource
 def load_model():
     with open("my_california_housing_model.pkl", "rb") as f:
