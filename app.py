@@ -36,7 +36,7 @@ st.title("🏠 California Housing Price Predictor")
 @st.cache_resource
 def load_model():
     try:
-        with open("my_california_housing_model. pkl", "rb") as f:
+        with open("my_california_housing_model.pkl", "rb") as f:
             model = pickle.load(f)
         return model
     except FileNotFoundError:
