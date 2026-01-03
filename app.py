@@ -7,7 +7,6 @@ import pickle
 # CRITICAL:  Define ALL custom functions used during training
 # These must be defined BEFORE loading the model
 # --------------------------------------------------
-
 def ratio_name(X):
     """
     Custom transformer function that was used during model training. 
