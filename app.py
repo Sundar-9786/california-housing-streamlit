@@ -71,7 +71,7 @@ with col1:
 
     total_rooms = st.number_input(
         "Total Rooms",
-        value=3321. 0,
+        value=3321.0,
         min_value=1.0,
         help="Example: 3321"
     )
