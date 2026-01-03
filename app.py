@@ -4,12 +4,25 @@ import numpy as np
 import pickle
 
 # --------------------------------------------------
-# CRITICAL:  Define column_ratio BEFORE loading model
-# This must match the function used during training
+# CRITICAL:  Define ALL custom functions used during training
+# These MUST match the exact names and signatures from training
 # --------------------------------------------------
+
+def ratio_name(function_transformer, feature_names_in):
+    """
+    Custom function for naming ratio features in sklearn pipeline. 
+    This function was used during model training. 
+    """
+    return ["ratio"]  # or return appropriate feature names
+
+
 def column_ratio(X):
-    """Custom transformer function for sklearn pipeline"""
+    """
+    Custom transformer function for sklearn pipeline. 
+    Computes ratio between two columns.
+    """
     return X[: , [0]] / X[:, [1]]
+
 
 # --------------------------------------------------
 # PAGE CONFIG
@@ -35,12 +48,13 @@ def load_model():
         st.stop()
     except Exception as e:
         st.error(f"❌ Error loading model: {str(e)}")
+        st.exception(e)
         st.stop()
 
 model = load_model()
 
 # Display success message
-st.success("✅ Model loaded successfully!")
+st. success("✅ Model loaded successfully!")
 
 # --------------------------------------------------
 # USER INPUTS
@@ -69,7 +83,7 @@ with col1:
         help="Example: 52"
     )
 
-    total_rooms = st.number_input(
+    total_rooms = st. number_input(
         "Total Rooms",
         value=3321.0,
         min_value=1.0,
@@ -120,7 +134,7 @@ with col2:
 # PREDICTION
 # --------------------------------------------------
 if st. button("🔮 Predict House Value", type="primary"):
-    # Create input dataframe
+    # Create input dataframe with exact column names expected by model
     input_df = pd.DataFrame([{
         "longitude": longitude,
         "latitude": latitude,
@@ -147,9 +161,10 @@ if st. button("🔮 Predict House Value", type="primary"):
         
         # Additional info
         st.info(f"""
-        **Note:** This prediction is based on the California Housing dataset.
-        - Prediction:  ${prediction[0]:,.2f}
-        - Median Income: ${median_income * 10000:,.2f}
+        **Prediction Details:**
+        - Estimated Value: ${prediction[0]:,.2f}
+        - Annual Income: ${median_income * 10000:,.2f}
+        - Location: {ocean_proximity}
         """)
         
     except Exception as e:
@@ -162,11 +177,12 @@ if st. button("🔮 Predict House Value", type="primary"):
             st.write(input_df)
             st.write("\nInput DataFrame dtypes:")
             st.write(input_df.dtypes)
-            st.write("\nModel type:")
-            st.write(type(model))
+            st.write("\nInput shape:")
+            st.write(input_df.shape)
+            st.exception(e)
 
 # --------------------------------------------------
 # FOOTER
 # --------------------------------------------------
 st.markdown("---")
-st.markdown("Built with Streamlit 🎈 | Model: California Housing Price Prediction")
+st.markdown("Built with Streamlit 🎈 | Model:  California Housing Price Prediction")
