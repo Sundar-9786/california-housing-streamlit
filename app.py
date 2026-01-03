@@ -1,8 +1,7 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
-import pickle
+import dill  # Changed from pickle
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.cluster import KMeans
 from sklearn. metrics. pairwise import rbf_kernel
@@ -14,7 +13,7 @@ from sklearn. metrics. pairwise import rbf_kernel
 class ClusterSimilarity(BaseEstimator, TransformerMixin):
     """
     Custom transformer that computes similarity to cluster centers.
-    This MUST match the exact implementation used during training.
+    This MUST match the exact implementation used during training. 
     """
     def __init__(self, n_clusters=10, gamma=1.0, random_state=None):
         self.n_clusters = n_clusters
@@ -32,7 +31,7 @@ class ClusterSimilarity(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        return rbf_kernel(X, self. kmeans_.cluster_centers_, gamma=self.gamma)
+        return rbf_kernel(X, self.kmeans_.cluster_centers_, gamma=self.gamma)
 
     def get_feature_names_out(self, names=None):
         return [f"Cluster_{i}_similarity" for i in range(self. n_clusters)]
@@ -40,17 +39,17 @@ class ClusterSimilarity(BaseEstimator, TransformerMixin):
 
 def ratio_name(X):
     """
-    Custom function for computing ratios.
-    This MUST be defined with the exact same name as in training.
+    Custom function for computing ratios. 
+    This MUST be defined with the exact same name as in training. 
     """
     return X[: , [0]] / X[:, [1]]
 
 
 def column_ratio(X):
     """
-    Alternative ratio function - keeping for compatibility.
+    Alternative ratio function - keeping for compatibility. 
     """
-    return X[:, [0]] / X[:, [1]]
+    return X[: , [0]] / X[:, [1]]
 
 
 # --------------------------------------------------
@@ -70,19 +69,29 @@ st.title("🏠 California Housing Price Predictor")
 @st.cache_resource
 def load_model():
     try:
+        # Try with dill first
         with open("my_california_housing_model.pkl", "rb") as f:
-            model = pickle.load(f)
+            model = dill.load(f)
         return model
-    except FileNotFoundError:
-        st. error("❌ Model file not found!  Please ensure 'my_california_housing_model.pkl' exists.")
-        st.stop()
-    except AttributeError as e:
-        st.error(f"❌ Error loading model - missing custom class/function: {str(e)}")
-        st.error("Please ensure all custom transformers are defined in app.py")
-        st.stop()
     except Exception as e:
-        st.error(f"❌ Error loading model: {str(e)}")
-        st.stop()
+        st. error(f"❌ Error with dill: {str(e)}")
+        
+        # Fallback to pickle
+        try:
+            import pickle
+            with open("my_california_housing_model.pkl", "rb") as f:
+                model = pickle.load(f)
+            return model
+        except FileNotFoundError:
+            st. error("❌ Model file not found!  Please ensure 'my_california_housing_model.pkl' exists.")
+            st.stop()
+        except Exception as e2:
+            st.error(f"❌ Error loading model:  {str(e2)}")
+            st.error("**Possible causes:**")
+            st.error("- Python version mismatch between training and deployment")
+            st.error("- scikit-learn version mismatch")
+            st.error("- Model needs to be re-saved with proper module structure")
+            st.stop()
 
 model = load_model()
 
@@ -152,7 +161,7 @@ with col2:
         "Median Income (in $10,000s)",
         value=2.0987,
         min_value=0.0,
-        format="%.4f",
+        format="%. 4f",
         help="Example:  2.0987 = $20,987"
     )
 
@@ -171,7 +180,7 @@ with col2:
 # --------------------------------------------------
 # PREDICTION
 # --------------------------------------------------
-st.markdown("---")
+st. markdown("---")
 
 if st.button("🔮 Predict House Value", type="primary", use_container_width=True):
     # Create input dataframe with exact column names from training
@@ -182,7 +191,7 @@ if st.button("🔮 Predict House Value", type="primary", use_container_width=Tru
         "total_rooms": total_rooms,
         "total_bedrooms": total_bedrooms,
         "population": population,
-        "households": households,
+        "households":  households,
         "median_income": median_income,
         "ocean_proximity": ocean_proximity
     }])
@@ -202,7 +211,7 @@ if st.button("🔮 Predict House Value", type="primary", use_container_width=Tru
         # Main prediction display
         st.markdown(f"""
         <div style='padding: 20px; background-color: #f0f2f6; border-radius: 10px; text-align: center;'>
-            <h2 style='color: #1f77b4; margin: 0;'>Predicted House Value</h2>
+            <h2 style='color:  #1f77b4; margin: 0;'>Predicted House Value</h2>
             <h1 style='color: #2ca02c; margin: 10px 0;'>${prediction[0]:,.2f}</h1>
         </div>
         """, unsafe_allow_html=True)
@@ -213,19 +222,19 @@ if st.button("🔮 Predict House Value", type="primary", use_container_width=Tru
         
         col_a, col_b, col_c = st.columns(3)
         
-        with col_a:
+        with col_a: 
             st.metric("Location", f"({latitude:. 2f}, {longitude:.2f})")
-            st.metric("Median Income", f"${median_income * 10000:,.0f}")
+            st.metric("Median Income", f"${median_income * 10000:,. 0f}")
         
         with col_b: 
-            st.metric("Total Rooms", f"{total_rooms:,. 0f}")
+            st.metric("Total Rooms", f"{total_rooms: ,. 0f}")
             st.metric("Bedrooms", f"{total_bedrooms:,.0f}")
         
-        with col_c: 
+        with col_c:
             st.metric("Population", f"{population:,.0f}")
             st.metric("Ocean Proximity", ocean_proximity)
         
-    except Exception as e:
+    except Exception as e: 
         st.error("❌ Prediction failed!")
         st.error(f"**Error details:** {str(e)}")
         
