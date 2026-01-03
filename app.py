@@ -64,7 +64,7 @@ with col1:
 
     housing_median_age = st. number_input(
         "Housing Median Age",
-        value=52. 0,
+        value=52.0,
         min_value=0.0,
         help="Example: 52"
     )
