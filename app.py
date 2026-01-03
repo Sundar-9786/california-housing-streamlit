@@ -5,24 +5,20 @@ import pickle
 
 # --------------------------------------------------
 # CRITICAL:  Define ALL custom functions used during training
-# These MUST match the exact names and signatures from training
+# These must be defined BEFORE loading the model
 # --------------------------------------------------
 
-def ratio_name(function_transformer, feature_names_in):
+def ratio_name(X):
     """
-    Custom function for naming ratio features in sklearn pipeline. 
-    This function was used during model training. 
-    """
-    return ["ratio"]  # or return appropriate feature names
-
-
-def column_ratio(X):
-    """
-    Custom transformer function for sklearn pipeline. 
-    Computes ratio between two columns.
+    Custom transformer function that was used during model training. 
+    This function MUST match the one used when creating the pickle file.
     """
     return X[: , [0]] / X[:, [1]]
 
+# You might also have other custom functions - add them here if needed
+def column_ratio(X):
+    """Alternative ratio function - keeping for compatibility"""
+    return X[: , [0]] / X[:, [1]]
 
 # --------------------------------------------------
 # PAGE CONFIG
@@ -40,7 +36,7 @@ st.title("🏠 California Housing Price Predictor")
 @st.cache_resource
 def load_model():
     try:
-        with open("my_california_housing_model.pkl", "rb") as f:
+        with open("my_california_housing_model. pkl", "rb") as f:
             model = pickle.load(f)
         return model
     except FileNotFoundError:
@@ -48,13 +44,12 @@ def load_model():
         st.stop()
     except Exception as e:
         st.error(f"❌ Error loading model: {str(e)}")
-        st.exception(e)
         st.stop()
 
 model = load_model()
 
 # Display success message
-st. success("✅ Model loaded successfully!")
+st.success("✅ Model loaded successfully!")
 
 # --------------------------------------------------
 # USER INPUTS
@@ -133,17 +128,17 @@ with col2:
 # --------------------------------------------------
 # PREDICTION
 # --------------------------------------------------
-if st. button("🔮 Predict House Value", type="primary"):
-    # Create input dataframe with exact column names expected by model
+if st.button("🔮 Predict House Value", type="primary"):
+    # Create input dataframe
     input_df = pd.DataFrame([{
         "longitude": longitude,
         "latitude": latitude,
         "housing_median_age": housing_median_age,
         "total_rooms": total_rooms,
         "total_bedrooms": total_bedrooms,
-        "population": population,
+        "population":  population,
         "households": households,
-        "median_income": median_income,
+        "median_income":  median_income,
         "ocean_proximity": ocean_proximity
     }])
 
@@ -153,7 +148,7 @@ if st. button("🔮 Predict House Value", type="primary"):
 
     # Make prediction
     try:
-        with st.spinner("Making prediction..."):
+        with st. spinner("Making prediction..."):
             prediction = model.predict(input_df)
         
         # Display result
@@ -163,8 +158,9 @@ if st. button("🔮 Predict House Value", type="primary"):
         st.info(f"""
         **Prediction Details:**
         - Estimated Value: ${prediction[0]:,.2f}
-        - Annual Income: ${median_income * 10000:,.2f}
-        - Location: {ocean_proximity}
+        - Median Income: ${median_income * 10000:,.2f}
+        - Location: ({latitude}, {longitude})
+        - Ocean Proximity: {ocean_proximity}
         """)
         
     except Exception as e:
@@ -177,8 +173,8 @@ if st. button("🔮 Predict House Value", type="primary"):
             st.write(input_df)
             st.write("\nInput DataFrame dtypes:")
             st.write(input_df.dtypes)
-            st.write("\nInput shape:")
-            st.write(input_df.shape)
+            st.write("\nModel type:")
+            st.write(type(model))
             st.exception(e)
 
 # --------------------------------------------------
