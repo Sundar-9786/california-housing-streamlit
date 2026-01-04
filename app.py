@@ -70,7 +70,7 @@ st.title("🏠 California Housing Price Predictor")
 def load_model():
     try:
         # Try with dill first
-        with open("my_california_housing_model.pkl", "rb") as f:
+        with open("my_california_housing_model_book.pkl", "rb") as f:
             model = dill.load(f)
         return model
     except Exception as e:
