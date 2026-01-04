@@ -79,7 +79,7 @@ def load_model():
         # Fallback to pickle
         try:
             import pickle
-            with open("my_california_housing_model.pkl", "rb") as f:
+            with open("my_california_housing_model_book.pkl", "rb") as f:
                 model = pickle.load(f)
             return model
         except FileNotFoundError:
